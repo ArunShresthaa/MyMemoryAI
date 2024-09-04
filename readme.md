@@ -45,7 +45,7 @@
     ```
 2. **Add Your Credentials**
 
-    - In credentials.js, add your credentials:
+    - In **credentials.js**, add your credentials:
     ```
     window.myCredentials = {
         email: '', // Your email
@@ -53,7 +53,7 @@
     };
     ```
 
-    - In javascript/background.js, set your credentials:
+    - In **javascript/background.js**, set your credentials:
 
     ```
     let email = ""; // Your email
