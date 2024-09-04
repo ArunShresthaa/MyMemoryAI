@@ -71,7 +71,7 @@ function requestServerForAnswer(userInput) {
     }).fail(function (error) {
         // Remove typing indicator in case of failure
         $('.typing-indicator-container').remove();
-        response = [{ text: "I am facing some issues, Please try again later!<br>Email: <a href='mailto:info@khwopa.edu.np'>info@khwopa.edu.np</a><br>Phone: (+977) 1-5122094, 5122098" }];
+        response = [{ text: "I am facing some issues, Please try again later!" }];
         addBotResponseToChatBox(response);
     });
 }
