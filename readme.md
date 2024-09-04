@@ -1,6 +1,6 @@
 # MyMemoryAI Chrome Extension
 
-**MyMemoryAI** is a Chrome extension that allows you to memorize selected text from any website and interact with the remembered memories through an interactive chatbot.
+**MyMemoryAI** is a Chrome extension that allows you to remember selected text from any website and interact with the remembered memories through an interactive chatbot.
 
 ## Features
 
@@ -72,7 +72,9 @@
 ## Usage
 
 - **To Memorize Text**: Select any text on a webpage, right-click, and choose "Memorize".
+![Memorize Text](docs/images/memorize-text.png)
 - **To Chat**: Click the extension icon and interact with the chatbot about your stored memories.
+![Chat with Bot](docs/images/chat-with-bot.png)
 
 ## Contributing
 
