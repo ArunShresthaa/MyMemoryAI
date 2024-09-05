@@ -22,7 +22,7 @@ $('#chat-input').keypress(function (e) {
 });
 
 function sendQuery() {
-    const userMessage = $('#chat-input').val();
+    let userMessage = $('#chat-input').val();
 
     if (userMessage.trim() !== '') {
 
@@ -45,7 +45,8 @@ function sendQuery() {
             $.ajax({
                 url: endpoint,
                 type: 'POST',
-                data: { content: textContent },
+                data: JSON.stringify({ content: textContent }),
+                contentType: "application/json",
                 success: function (response) {
                     // Remove typing indicator when response is received
                     $('.typing-indicator-container').remove();
@@ -64,7 +65,7 @@ function sendQuery() {
 
         if (userMessage.startsWith('/m')) {
 
-            userMessage = userMessage.replace(/\/memorise|\/memorize/g, '');
+            userMessage = userMessage.replace(/\/m/g, '');
 
             // Send the selected text to FastAPI
             fetch('https://projects.sthaarun.com.np/memorize', {
