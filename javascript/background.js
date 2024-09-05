@@ -25,3 +25,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             .catch((error) => console.error('Error:', error));
     }
 });
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "getPageContent") {
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.scripting.executeScript({
+          target: {tabId: tabs[0].id},
+          function: () => document.documentElement.outerHTML
+        }, (results) => {
+          if (chrome.runtime.lastError) {
+            sendResponse({error: chrome.runtime.lastError.message});
+          } else {
+            sendResponse({content: results[0].result});
+          }
+        });
+      });
+      return true;  // Will respond asynchronously
+    }
+  });
