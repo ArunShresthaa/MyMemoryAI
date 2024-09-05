@@ -25,7 +25,11 @@ function sendQuery() {
     const userMessage = $('#chat-input').val();
 
     if (userMessage.trim() !== '') {
-        if (userMessage.startsWith('/summarize')) {
+
+        appendMessage(userMessage, 'user');
+        $('#chat-input').val('');
+
+        if (userMessage.startsWith('/s')) {
             const pageContent = $('html').html();
             const textContent = pageContent.replace(/<\/?[^>]+(>|$)/g, ""); // Strip HTML tags using regex
             const endpoint = 'https://projects.sthaarun.com.np/summarize';
@@ -42,23 +46,47 @@ function sendQuery() {
                 url: endpoint,
                 type: 'POST',
                 data: { content: textContent },
-                success: function(response) {
+                success: function (response) {
                     // Remove typing indicator when response is received
                     $('.typing-indicator-container').remove();
-                    addBotResponseToChatBox(response);
+                    appendMessage(response.summary, 'bot');
                 },
-                error: function(error) {
+                error: function (error) {
                     // Remove typing indicator in case of failure
                     $('.typing-indicator-container').remove();
                     response = [{ text: "Error sending summary request." }];
-                    addBotResponseToChatBox(response);
+                    appendMessage(response, 'bot');
                 }
             });
-        } else {
-            appendMessage(userMessage, 'user');
-            $('#chat-input').val('');
-            requestServerForAnswer(userMessage);
+
+            return;
         }
+
+        if (userMessage.startsWith('/m')) {
+
+            userMessage = userMessage.replace(/\/memorise|\/memorize/g, '');
+
+            // Send the selected text to FastAPI
+            fetch('https://projects.sthaarun.com.np/memorize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: userMessage, email: email, password: password })
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.message == 'Text memorized successfully!') {
+                        appendMessage(data.message, 'bot');
+                    }
+                })
+                .catch((error) => {
+                    appendMessage('Error: ' + error, 'bot');
+                });
+
+            return;
+        }
+
+        requestServerForAnswer(userMessage);
     }
 }
 
