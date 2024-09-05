@@ -67,6 +67,14 @@ function sendQuery() {
 
             userMessage = userMessage.replace(/\/m/g, '');
 
+            // Show typing indicator
+            let typingIndicator = `<div class="chat-message bot typing-indicator-container">
+                        <img src="images/bot.png" alt="bot image">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>`;
+            $('#chat-box-body').append(typingIndicator);
+            $('#chat-box-body').scrollTop($('#chat-box-body')[0].scrollHeight);
+
             // Send the selected text to FastAPI
             fetch('https://projects.sthaarun.com.np/memorize', {
                 method: 'POST',
@@ -76,11 +84,17 @@ function sendQuery() {
                 body: JSON.stringify({ text: userMessage, email: email, password: password })
             }).then(response => response.json())
                 .then(data => {
+                    // Remove typing indicator when response is received
+                    $('.typing-indicator-container').remove();
+
                     if (data.message == 'Text memorized successfully!') {
                         appendMessage(data.message, 'bot');
                     }
                 })
                 .catch((error) => {
+                    // Remove typing indicator in case of failure
+                    $('.typing-indicator-container').remove();
+
                     appendMessage('Error: ' + error, 'bot');
                 });
 
