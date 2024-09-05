@@ -23,44 +23,19 @@ $('#chat-input').keypress(function (e) {
 
 function sendQuery() {
     const userMessage = $('#chat-input').val();
-
-    if (userMessage.trim() !== '') {
-        if (userMessage.startsWith('/summarize')) {
-            const pageContent = $('html').html();
-            const textContent = pageContent.replace(/<\/?[^>]+(>|$)/g, ""); // Strip HTML tags using regex
-            const endpoint = 'https://projects.sthaarun.com.np/summarize';
-
-            // Show typing indicator
-            let typingIndicator = `<div class="chat-message bot typing-indicator-container">
-                        <img src="images/bot.png" alt="bot image">
-                        <div class="typing-indicator"><span></span><span></span><span></span></div>
-                    </div>`;
-            $('#chat-box-body').append(typingIndicator);
-            $('#chat-box-body').scrollTop($('#chat-box-body')[0].scrollHeight);
-
-            $.ajax({
-                url: endpoint,
-                type: 'POST',
-                data: { content: textContent },
-                success: function(response) {
-                    // Remove typing indicator when response is received
-                    $('.typing-indicator-container').remove();
-                    addBotResponseToChatBox(response);
-                },
-                error: function(error) {
-                    // Remove typing indicator in case of failure
-                    $('.typing-indicator-container').remove();
-                    response = [{ text: "Error sending summary request." }];
-                    addBotResponseToChatBox(response);
-                }
-            });
-        } else {
-            appendMessage(userMessage, 'user');
-            $('#chat-input').val('');
-            requestServerForAnswer(userMessage);
-        }
+    appendMessage(userMessage, 'user');
+    $('#chat-input').val('');
+    
+    if (userMessage.startsWith('/summarize')) {
+        requestServerForSummary();
     }
+
+    else{
+        requestServerForAnswer(userMessage);
+    }
+
 }
+
 
 function appendMessage(message, sender) {
     let messageClass = sender === 'user' ? 'chat-message user' : 'chat-message bot';
@@ -99,6 +74,49 @@ function requestServerForAnswer(userInput) {
         // Remove typing indicator when response is received
         $('.typing-indicator-container').remove();
         addBotResponseToChatBox(response);
+    }).fail(function (error) {
+        // Remove typing indicator in case of failure
+        $('.typing-indicator-container').remove();
+        response = [{ text: "I am facing some issues, Please try again later!" }];
+        addBotResponseToChatBox(response);
+    });
+}
+function getPageContent() {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ action: "getPageContent" }, (response) => {
+            if (response.error) {
+                reject(response.error);
+            } else {
+                resolve(response.content);
+            }
+        });
+    });
+}
+
+async function requestServerForSummary() {
+    let url = "https://projects.sthaarun.com.np/summarize";
+    let textContent = await getPageContent();
+
+    let data = { content: textContent};
+    // Show typing indicator
+    let typingIndicator = `<div class="chat-message bot typing-indicator-container">
+                <img src="images/bot.png" alt="bot image">
+                <div class="typing-indicator"><span></span><span></span><span></span></div>
+            </div>`;
+
+    $('#chat-box-body').append(typingIndicator);
+    $('#chat-box-body').scrollTop($('#chat-box-body')[0].scrollHeight);
+
+    $.ajax({
+        url: url,
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        method: 'POST'
+    }).done(function (response) {
+        // Remove typing indicator when response is received
+        $('.typing-indicator-container').remove();
+        console.log(response)
+        appendMessage(response.summary, 'bot');
     }).fail(function (error) {
         // Remove typing indicator in case of failure
         $('.typing-indicator-container').remove();
