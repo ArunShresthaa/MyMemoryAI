@@ -5,7 +5,8 @@
     "description": "Memorize selected text and chat with a chatbot.",
     "permissions": [
         "contextMenus",
-        "activeTab"
+        "activeTab",
+        "scripting"
     ],
     "background": {
         "service_worker": "javascript/background.js"
