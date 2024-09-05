@@ -25,9 +25,40 @@ function sendQuery() {
     const userMessage = $('#chat-input').val();
 
     if (userMessage.trim() !== '') {
-        appendMessage(userMessage, 'user');
-        $('#chat-input').val('');
-        requestServerForAnswer(userMessage);
+        if (userMessage.startsWith('/summarize')) {
+            const pageContent = $('html').html();
+            const textContent = pageContent.replace(/<\/?[^>]+(>|$)/g, ""); // Strip HTML tags using regex
+            const endpoint = 'https://projects.sthaarun.com.np/summarize';
+
+            // Show typing indicator
+            let typingIndicator = `<div class="chat-message bot typing-indicator-container">
+                        <img src="images/bot.png" alt="bot image">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>`;
+            $('#chat-box-body').append(typingIndicator);
+            $('#chat-box-body').scrollTop($('#chat-box-body')[0].scrollHeight);
+
+            $.ajax({
+                url: endpoint,
+                type: 'POST',
+                data: { content: textContent },
+                success: function(response) {
+                    // Remove typing indicator when response is received
+                    $('.typing-indicator-container').remove();
+                    addBotResponseToChatBox(response);
+                },
+                error: function(error) {
+                    // Remove typing indicator in case of failure
+                    $('.typing-indicator-container').remove();
+                    response = [{ text: "Error sending summary request." }];
+                    addBotResponseToChatBox(response);
+                }
+            });
+        } else {
+            appendMessage(userMessage, 'user');
+            $('#chat-input').val('');
+            requestServerForAnswer(userMessage);
+        }
     }
 }
 
